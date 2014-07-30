@@ -23,18 +23,27 @@
 /// THE SOFTWARE.
 ///
 
-#ifndef ANAX_EXAMPLES_COMMON_COMPONENTS_SPRITECOMPONENT_HPP
-#define ANAX_EXAMPLES_COMMON_COMPONENTS_SPRITECOMPONENT_HPP
+#ifndef ANAX_CONFIG_HPP
+#define ANAX_CONFIG_HPP
 
-#include <anax/Component.hpp>
-#include <SFML/Graphics/Sprite.hpp>
+#include <cstddef>
 
-/// \brief A component used to describe a sprite
-///
-/// \author Miguel Martin
-struct SpriteComponent : anax::Component<SpriteComponent>
+/* #undef ANAX_32_BIT_ENTITY_IDS */
+#define ANAX_USE_VARIADIC_TEMPLATES true
+#define ANAX_VIRTUAL_DTORS_IN_COMPONENT true
+
+#ifdef ANAX_32_BIT_ENTITY_IDS
+#	define ANAX_ENTITY_ID_INDEX_BIT_COUNT 20
+#	define ANAX_ENTITY_ID_COUNTER_BIT_COUNT 12
+#else
+#	define ANAX_ENTITY_ID_INDEX_BIT_COUNT 48
+#	define ANAX_ENTITY_ID_COUNTER_BIT_COUNT 16
+#endif
+
+namespace anax
 {
-    sf::Sprite sprite;
-};
+    /// The default size of a pool within a world  
+    constexpr std::size_t DEFAULT_ENTITY_POOL_SIZE = 1000;  
+}
 
-#endif // ANAX_EXAMPLES_COMMON_COMPONENTS_SPRITECOMPONENT_HPP
+#endif // ANAX_CONFIG_HPP

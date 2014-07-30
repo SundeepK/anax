@@ -39,6 +39,7 @@
 #include <anax/Component.hpp>
 #include <anax/Entity.hpp>
 #include <anax/System.hpp>
+#include <TagCache.h>
 
 namespace anax
 {
@@ -56,6 +57,8 @@ namespace anax
         /// thus systems of the same type can not be stored
         /// in the same World object.
         typedef std::unordered_map<detail::TypeId, std::unique_ptr<BaseSystem, SystemDeleter>> SystemArray;
+
+        TagCache m_tagCache;
 
     public:
 

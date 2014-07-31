@@ -168,6 +168,13 @@ namespace anax
         /// to the world
         Entity getEntity(std::size_t index);
 
+        template <typename Tag_type1, typename... Tag_types>
+        Entity createTaggedEntity(const Tag_type1& tag, const Tag_types& ... tags);
+
+    	template<typename Tag_type>
+        void World::tagEntity(const Entity& enitity, const Tag_type& tag);
+
+
     private:
 
         /// Systems attached with the world.
@@ -274,6 +281,9 @@ namespace anax
         void removeSystem(detail::TypeId systemTypeId);     
         bool doesSystemExist(detail::TypeId systemTypeId) const;
 
+    	template<typename Tag_type>
+        Entity taggedEntity(const Entity& enitity, const Tag_type& tag);
+
         // to access components
         friend class Entity;
     };
@@ -305,6 +315,26 @@ namespace anax
         static_assert(std::is_base_of<BaseSystem, TSystem>(), "Template argument does not inherit from BaseSystem"); 
         return system.m_world == this && doesSystemExist<TSystem>();
     }
+
+	template<typename Tag_type>
+    Entity World::taggedEntity(const Entity& entity, const Tag_type& tag){
+    	this->m_tagCache.putTag(entity, tag);
+	}
+
+#ifdef ANAX_USE_VARIADIC_TEMPLATES
+
+    template <typename Tag_type1, typename... Tag_types>
+    Entity World::createTaggedEntity(const Tag_type1& tag, const Tag_types& ... tags)
+    {
+    	Entity entity = this->createEntity();
+    	taggedEntity(entity, tag);
+    	taggedEntity(entity, Tag_types...);
+        return entity;
+    }
+
+#endif // ANAX_USE_VARIADIC_TEMPLATES
+
+
 }
 
 #endif // ANAX_WORLD_HPP

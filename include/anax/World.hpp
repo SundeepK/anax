@@ -39,7 +39,7 @@
 #include <anax/Component.hpp>
 #include <anax/Entity.hpp>
 #include <anax/System.hpp>
-#include <TagCache.h>
+#include <anax/TagCache.h>
 
 namespace anax
 {
@@ -171,8 +171,8 @@ namespace anax
         template <typename Tag_type1, typename... Tag_types>
         Entity createTaggedEntity(const Tag_type1& tag, const Tag_types& ... tags);
 
-    	template<typename Tag_type>
-        void World::tagEntity(const Entity& enitity, const Tag_type& tag);
+    	template<typename Tag_type, typename... Tag_types>
+        void tagEntity(const Entity& enitity, const Tag_type& tag, const Tag_types& ... tags);
 
 
     private:
@@ -282,7 +282,7 @@ namespace anax
         bool doesSystemExist(detail::TypeId systemTypeId) const;
 
     	template<typename Tag_type>
-        Entity taggedEntity(const Entity& enitity, const Tag_type& tag);
+        void tagEntity(const Entity& enitity, const Tag_type& tag);
 
         // to access components
         friend class Entity;
@@ -317,8 +317,8 @@ namespace anax
     }
 
 	template<typename Tag_type>
-    Entity World::taggedEntity(const Entity& entity, const Tag_type& tag){
-    	this->m_tagCache.putTag(entity, tag);
+    void World::tagEntity(const Entity& entity, const Tag_type& tag){
+    	this->m_tagCache.putTag(tag, entity.getId());
 	}
 
 #ifdef ANAX_USE_VARIADIC_TEMPLATES
@@ -327,10 +327,16 @@ namespace anax
     Entity World::createTaggedEntity(const Tag_type1& tag, const Tag_types& ... tags)
     {
     	Entity entity = this->createEntity();
-    	taggedEntity(entity, tag);
-    	taggedEntity(entity, Tag_types...);
+    	tagEntity(entity, tag);
+    	tagEntity(entity, tags...);
         return entity;
     }
+
+	template<typename Tag_type, typename... Tag_types>
+    void World::tagEntity(const Entity& entity, const Tag_type& tag, const Tag_types& ... tags){
+    	tagEntity(entity, tag);
+    	tagEntity(entity, tags...);
+	}
 
 #endif // ANAX_USE_VARIADIC_TEMPLATES
 

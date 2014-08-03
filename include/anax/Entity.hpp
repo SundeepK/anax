@@ -30,10 +30,11 @@
 #include <cstdint>
 
 #include <anax/detail/ClassTypeId.hpp>
-
+#include <boost/any.hpp>
 #include <anax/config.hpp>
 #include <anax/Component.hpp>
 #include <anax/ComponentTypeList.hpp>
+#include <anax/TagCache.h>
 
 namespace anax
 {
@@ -119,7 +120,7 @@ namespace anax
         /// \param world The World the entity belongs to
         /// \param id The designated ID of the Entity
         /// \note You should not call this ctor
-        Entity(World& world, Id id);
+        Entity(World& world, Id id, TagCache& tagCache);
 
         /// Default copy/move ctors and assignment operators
         Entity(const Entity&) = default;
@@ -175,6 +176,8 @@ namespace anax
         template <typename T>
         T& addComponent(T* component);
 
+        const std::vector<boost::any>& getTags();
+
 #ifdef ANAX_USE_VARIADIC_TEMPLATES
 
         /// Adds a component to the Entity
@@ -217,6 +220,22 @@ namespace anax
         bool operator==(const Entity& entity) const;
         bool operator!=(const Entity& entity) const { return !operator==(entity); }
 
+        template <typename Tag_type1, typename... Tag_types>
+        void addTag(const Tag_type1& tag, const Tag_types& ... tags);
+
+    	template<typename Tag_type>
+        void tagEntity(const Entity& entity,  Tag_type& tag);
+
+//        template <typename Tag_type1, typename... Tag_types>
+//        void addTag( Tag_type1 tag, Tag_types... tags);
+
+//        template <typename Tag_type1, typename... Tag_types>
+//        void addTag( Tag_type1 tag,  Tag_types... tags){
+//        	storeTag(tag);
+//        	//storeTag(tags...);
+//        	getWorld().clear();
+//        }
+
     private:
 
         // wrappers to add components
@@ -226,6 +245,8 @@ namespace anax
         BaseComponent& getComponent(detail::TypeId componentTypeId) const;
         bool hasComponent(detail::TypeId componentTypeId) const;
 
+        template <typename Tag_type1>
+        void storeTag(const Tag_type1& tag);
 
         /// The ID of the Entity
         Id m_id;
@@ -234,6 +255,11 @@ namespace anax
         /// to not be null, as long as this entity is not null.
         /// \see isNull() To determine if the entity is null or not.
         World* m_world;
+
+    	std::vector<boost::any> m_entityTags;
+        TagCache m_tagCache;
+
+
     };
 
 
@@ -275,6 +301,31 @@ namespace anax
         static_assert(std::is_base_of<BaseComponent, T>(), "T is not a component, cannot determine if entity has T");
         return hasComponent(T::GetTypeId());
     }
+
+    template <typename Tag_type1>
+    void Entity::storeTag(const Tag_type1& tag){
+    	m_entityTags.push_back(tag);
+    }
+
+	template<typename Tag_type>
+    void Entity::tagEntity(const Entity& entity, Tag_type& tag){
+    	this->m_tagCache.putTag(tag, entity.getId());
+	}
+
+    template <typename Tag_type1, typename... Tag_types>
+    void Entity::addTag(const Tag_type1& tag, const Tag_types& ... tags)
+    {
+    	tagEntity(*this, tag);
+    //	tagEntity(*this, tags...);
+    }
+
+//    template <typename Tag_type1, typename... Tag_types>
+//    void Entity::addTag( Tag_type1 tag,  Tag_types... tags){
+//    	storeTag(tag);
+//    	//storeTag(tags...);
+//    	getWorld().tagEntity(*this,tag, tags);
+//    }
+
 }
 
 #endif // ANAX_ENTITY_HPP

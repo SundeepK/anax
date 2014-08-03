@@ -1,44 +1,54 @@
 #ifndef TAGCACHE_H_
 #define TAGCACHE_H_
 
+//#include <anax/Entity.hpp>
 #include <unordered_map>
+#include <BoostAnyHasher.h>
 #include <boost/any.hpp>
-#include <anax/detail/ClassTypeId.hpp>
 
 namespace anax {
 
-class TagCache {
+	class TagCache {
 
-public:
-	TagCache();
-	virtual ~TagCache();
+	public:
 
-	template<typename Tag_type>
-	Entity::Id getTagId(const Tag_type& tag) const;
+		TagCache(){}
 
-	template<typename Tag_type>
-	void putTag(const Tag_type& tag, const Entity::Id);
+		template<typename Tag_type>
+		int getTagId(const Tag_type& tag) const;
 
-private:
+		template<typename Tag_type>
+		void putTag( Tag_type& tag, const int id);
 
-	std::unordered_map<boost::any, detail::TypeId> m_tagsToUniqueIds;
-};
+		template<typename Tag_type>
+		void eraseTag(const Tag_type& tag);
 
-// return -1 if no id is found for tag
-template<typename Tag_type>
-Entity::Id TagCache::getTagId(const Tag_type& tag) const {
-	int tagId = -1;
-	auto tagIterator = m_tagsToUniqueIds.find(tag);
-	if (tagIterator != m_tagsToUniqueIds.end()) {
-		tagId = tagIterator.second;
-	}
-	return tagId;
-}
+	private:
 
-template<typename Tag_type>
-void TagCache::putTag(const Tag_type& tag, const Entity::Id id) {
-	m_tagsToUniqueIds[tag] = id;
-}
+		std::unordered_map<boost::any, int, BoostAnyHasher> m_tagsToUniqueIds;
+	};
+
+		// return -1 if no id is found for tag
+		template<typename Tag_type>
+		int TagCache::getTagId(const Tag_type& tag) const {
+			int tagId = -1;
+			auto tagIterator = m_tagsToUniqueIds.find(tag);
+			if (tagIterator != m_tagsToUniqueIds.end()) {
+				tagId = tagIterator.second;
+			}
+			return tagId;
+		}
+
+		template<typename Tag_type>
+		void TagCache::putTag( Tag_type& tag, const int id) {
+			m_tagsToUniqueIds[boost::any(tag)] = id;
+		}
+
+		template<typename Tag_type>
+		void TagCache::eraseTag(const Tag_type& tag){
+			m_tagsToUniqueIds.erase(tag);
+		}
+
 
 }
 

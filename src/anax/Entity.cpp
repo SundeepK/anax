@@ -34,9 +34,10 @@ namespace anax
     {
     }
 
-    Entity::Entity(World& world, Entity::Id id) : 
+    Entity::Entity(World& world, Entity::Id id, TagCache& tagCache) :
         m_id(id),
-        m_world(&world)
+        m_world(&world),
+        m_tagCache(tagCache)
     {
     }
 
@@ -127,5 +128,10 @@ namespace anax
     {
         return getWorld().m_entityAttributes.componentStorage.hasComponent(*this, componentTypeId);
     }
+
+    const std::vector<boost::any>& Entity::getTags(){
+    	return m_entityTags;
+    }
+
 }
 

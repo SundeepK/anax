@@ -50,8 +50,6 @@ namespace anax
             EntityIdPool& operator=(const EntityIdPool&) = delete;
             EntityIdPool& operator=(EntityIdPool&&) = delete;
 
-
-
             /// Creates an Entity ID
             /// \return The newly created Entity ID
             Entity::Id create();

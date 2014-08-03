@@ -56,7 +56,7 @@ namespace anax
     {
         checkForResize(1);
 
-        m_entityCache.alive.emplace_back(*this, m_entityIdPool.create());
+        m_entityCache.alive.emplace_back(*this, m_entityIdPool.create(), m_tagCache);
         return m_entityCache.alive.back();
     }
 
@@ -69,7 +69,7 @@ namespace anax
 
         for(decltype(amount) i = 0; i < amount; ++i)
         {
-            Entity e{*this, m_entityIdPool.create()};
+            Entity e{*this, m_entityIdPool.create(), m_tagCache};
             m_entityCache.alive.push_back(e);
             temp.push_back(e);
         }
@@ -81,6 +81,10 @@ namespace anax
     {
         // deactivate the entity
         deactivateEntity(entity);
+
+        for (auto &tag : entity.getTags()){
+        	//	m_tagCache.eraseTag(tag);
+    	}
 
         // now kill the entity (add it to the killed cache)
         m_entityCache.killed.push_back(entity);
@@ -257,6 +261,6 @@ namespace anax
 
     Entity World::getEntity(std::size_t index)
     {
-        return Entity{*this, m_entityIdPool.get(index)};
+        return Entity{*this, m_entityIdPool.get(index), m_tagCache};
     }
 }
